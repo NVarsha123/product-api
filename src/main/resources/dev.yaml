@@ -1,0 +1,6 @@
+http:
+    port: "8081"
+aws:
+   bucket:
+         accesskey: "AKIA6GBMHI5WPZMC7YOJ"
+         secretkey: "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"
