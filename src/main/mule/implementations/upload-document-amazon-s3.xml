@@ -39,7 +39,7 @@ output application/json
 ---
 {
   code: 200,
-  message: "Success",
+  message: "Successfully",
   description: "Document uploaded successfully",
   dateTime: now() as String {format:"yyyy-MM-dd"},
   transactionId: "44b32520-61ee-47b4-907d-fa15869f3c4d"
