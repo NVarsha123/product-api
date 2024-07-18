@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="error-resopnse" doc:id="2bb254e2-1ee8-4540-a924-1d45ee388cad" >
+		<ee:transform doc:name="Transform Message" doc:id="7130051b-e7b1-48f8-a4ff-d836ef91de4a">
+				<ee:message>
+				</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="errorDescription" ><![CDATA[%dw 2.0
+output application/java
+---
+if (vars.errorDescription?)
+    vars.errorDescription
+else
+error.exception.detailMessage]]></ee:set-variable>
+			</ee:variables>
+			</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="ed7401eb-8f8d-4758-82e9-99c3be6caf0b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json encoding="UTF-8", skipNullOn="everywhere"
+---
+{
+    "code": vars.httpStatus,
+    "message": if (vars.errorMessage != null) vars.errorMessage else error.errorType.identifier,
+    "description": if (vars.errorDescription != null) vars.errorDescription else error.description,
+    "dateTime": now() as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<error-handler name="global-error-handlingError_Handler" doc:id="d35f366a-5a1d-40d8-b655-720c442809fb" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e972cf74-e314-48d7-ba85-799cd5950f5e" type="APIKIT:BAD_REQUEST">
+			<set-variable value="#[400]" doc:name="Set error statuscode 400" doc:id="ff453325-9efa-402c-949e-27c0e2ce0219" variableName="httpStatus"/>
+			<set-variable value='#["Bad request"]' doc:name="Seterror message" doc:id="8f4c08eb-9e33-409a-b894-b3bda063368f" variableName="errorMessage"/>
+			<set-variable value="#[error.discrition]" doc:name="set description" doc:id="33678eaa-44c6-44ae-bcc7-95204221c9a8" variableName="Description"/>
+			<flow-ref doc:name="Flow Reference" doc:id="b8a81a0f-3a36-40b6-8637-1ac97dadd176" name="error-resopnse" />
+		</on-error-continue>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3220dd2e-0dae-4b86-83b0-7f73b75afce9" type="APIKIT:METHOD_NOT_ALLOWED">
+			<set-variable value="#[405]" doc:name="Set error statuscode 405" doc:id="a2692f18-0afc-4e7d-94dc-a07e12aa6e9f" variableName="httpStatus" />
+			<set-variable value='#["Method Not Allowed"]' doc:name="Seterror message" doc:id="2231db33-65ad-4730-9bc1-ddf83a32a29e" variableName="errorMessage" />
+			<set-variable value="#[error.discrition]" doc:name="set description" doc:id="1c9dc67b-5c59-4429-8c29-372951f95c0b" variableName="Description" />
+			<flow-ref doc:name="Flow Reference" doc:id="0e3400d7-9325-42de-b6ce-fe389c76e5c6" name="error-resopnse" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8b5b81bc-8869-4e06-b7db-4ee7a889964a" type="ANY">
+			<set-variable value="#[500]" doc:name="Set error statuscode 500" doc:id="101a21ae-b508-4db2-aaff-b21bd6e01028" variableName="httpStatus" />
+			<set-variable value='#["Internal server error"]' doc:name="Seterror message" doc:id="a7894419-2928-44c2-b534-caffc822a853" variableName="errorMessage" />
+			<set-variable value="#[error.discrition]" doc:name="set description" doc:id="087a26aa-9962-4a59-b07e-72fcdab6d528" variableName="Description" />
+			<flow-ref doc:name="Flow Reference" doc:id="11f75a82-3ba9-4e89-97d4-1a15f0bab67c" name="error-resopnse" />
+		</on-error-propagate>
+	</error-handler>
+</mule>

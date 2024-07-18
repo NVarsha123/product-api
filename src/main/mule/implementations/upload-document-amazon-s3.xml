@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:s3="http://www.mulesoft.org/schema/mule/s3"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd">
+	<s3:config name="Amazon_S3_Configuration" doc:name="Amazon S3 Configuration" doc:id="d14060e6-ab4d-4101-8aba-37db692a17d4" >
+		<s3:connection accessKey="${aws.bucket.accesskey}" secretKey="${aws.bucket.secretkey}"/>
+	</s3:config>
+	<flow name="post:\document:application\json:uhub-sapi-aws-config">
+        <logger level="INFO" doc:name="Logger" doc:id="1b7ca351-6982-4301-b9dc-31de6bb84253" message="******flow started*****#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="b6afa6b8-324d-4c44-9513-d69f87a626a5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/octet-stream
+---
+fromBase64(payload.document)]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="bucketName" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.bucketName]]></ee:set-variable>
+				<ee:set-variable variableName="keypath" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.folderPath as String ++ "/" ++ payload.fileName as String]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<s3:create-bucket doc:name="Create Bucket" doc:id="9749507e-5b83-4746-ab7b-73de8314b42f" config-ref="Amazon_S3_Configuration" bucketName="covid-document-upload"/>
+		<s3:put-object doc:name="Put Object" doc:id="c0630cb8-9012-45fb-8970-3b4e7ee5e6ed" config-ref="Amazon_S3_Configuration" bucketName="#[vars.bucketName]" key="#[vars.keypath]"/>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  code: 200,
+  message: "Successfully",
+  description: "Document uploaded successfully",
+  dateTime: now() as String {format:"yyyy-MM-dd"},
+  transactionId: "44b32520-61ee-47b4-907d-fa15869f3c4d"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+	</mule>

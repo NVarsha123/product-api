@@ -1,0 +1,51 @@
+#%RAML 1.0 Library
+usage: Contains types of aws-sapi
+types:
+  upload-s3-document-request-payload:
+    properties:
+      bucketName:
+        type: string
+        required: true
+        example: "uho-covid-docs"
+      folderPath:
+        type: string
+        required: true
+        example: "identity"
+      fileName:
+        type: string
+        required: true
+        example: "35653.png"
+      document:
+        type: string
+        required: true
+        example: "iVBORw0KGgoAAAANSUhEUgAAAOIAAACRCAYAAADepmS4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjw"
+  upload-s3-document-response-payload:
+    type: object
+    properties:
+        code:
+          type: integer
+          description: 200
+          required: true
+        message:
+          type: string
+          description: Success
+          required: true
+        description:
+          type: string
+          description: Document uploaded successfully
+          required: true
+        dateTime:
+          type: datetime
+          description: The date-time stamp of the occured error
+          required: true
+        transactionId:
+          type: string
+          description: The internal error occurs
+          required: true
+        
+
+
+
+    
+          
+          

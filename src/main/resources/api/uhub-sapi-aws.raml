@@ -1,0 +1,41 @@
+#%RAML 1.0
+title: uhub-sapi-aws
+version: v1
+baseUri: http://localhost:8081/covid/v1
+securitySchemes:
+  basic: !include /securityschemes/basicsecurityScheme.raml
+uses:
+  aws-sapi-library: aws-sapi-datatypes/aws-sapi-datatypes.raml
+/document:
+  post:
+    securedBy: [basic]
+      
+    body:
+      application/json:
+        type: aws-sapi-library.upload-s3-document-request-payload
+        example: !include examples/aws-sapi-request-examplefile.json
+    responses:
+      200:
+        body:
+          application/json:
+            type: aws-sapi-library.upload-s3-document-response-payload
+            example: !include examples/aws-sapi-response-example.json
+      400:
+        body:
+          application/json:
+            type: !include examples/400.json
+      500:
+        body:
+          application/json:
+            type: !include examples/500.json
+      503:
+        body:
+          application/json:
+            type: !include examples/503.json
+
+              
+          
+      
+        
+      
+          
