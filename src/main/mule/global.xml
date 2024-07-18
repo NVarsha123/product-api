@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
     <apikit:config name="uhub-sapi-aws-config" api="uhub-sapi-aws.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-	<configuration-properties doc:name="Configuration properties" doc:id="26fb3c5f-859e-4a11-bc18-203f3503e2df" file="dev.yaml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="26fb3c5f-859e-4a11-bc18-203f3503e2df" file="${env}.yaml" />
 	<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="fc691e51-9733-4f8d-baa8-578f1e55f489" flowRef="uhub-sapi-aws-main" />
     
     
